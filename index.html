@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Happy New Year 2026</title>
+  <style>
+    /* Performance optimizations */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a0a1a 100%);
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    /* Canvas with hardware acceleration */
+    canvas {
+      position: fixed;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      will-change: contents;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+
+    /* Enhanced footer styling */
+    p {
+      margin: 0;
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      color: #ffdca8;
+      font-size: 14px;
+      text-shadow: 0 2px 8px rgba(255, 200, 100, 0.6), 0 0 20px rgba(255, 180, 80, 0.5), 0 0 40px rgba(255, 160, 60, 0.3);
+      z-index: 10;
+      pointer-events: none;
+      will-change: opacity;
+      animation: fadeIn 1s ease-in, glowPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { 
+        text-shadow: 0 2px 8px rgba(255, 200, 100, 0.6), 0 0 20px rgba(255, 180, 80, 0.5), 0 0 40px rgba(255, 160, 60, 0.3);
+      }
+      50% { 
+        text-shadow: 0 2px 12px rgba(255, 220, 120, 0.8), 0 0 30px rgba(255, 200, 100, 0.7), 0 0 60px rgba(255, 180, 80, 0.5);
+      }
+    }
+
+    p a {
+      color: #fff3d9;
+      text-decoration: none;
+      font-weight: 700;
+      text-shadow: 0 2px 10px rgba(255, 200, 100, 0.7), 0 0 25px rgba(255, 180, 80, 0.6), 0 0 50px rgba(255, 160, 60, 0.4);
+      transition: text-shadow 0.3s ease;
+      display: inline-block;
+    }
+
+    p span { 
+      font-size: 12px; 
+      color: #ffdca8; 
+      opacity: 0.95; 
+      margin-left: 8px; 
+      text-shadow: 0 1px 5px rgba(255, 200, 100, 0.5);
+    }
+
+    /* Loading indicator */
+    .loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #ffdca8;
+      font-size: 18px;
+      opacity: 0;
+      animation: pulse 2s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c" aria-label="New Year animation"></canvas>
+  <div class="loading">Loading...</div>
+
+  <p>
+    <a href="#" target="_blank">Happy New Year 2026 ✨</a>
+    <span>• Made by Navadeep  </span>
+  </p>
+
+  <script>
+  (function () {
+    'use strict';
+    
+    const canvas = document.getElementById('c');
+    if (!canvas) throw new Error("Canvas element with id 'c' not found.");
+    const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+
+    // Performance detection
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isLowEnd = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2;
+    const performanceMode = isMobile || isLowEnd ? 'low' : 'high';
+
+    // Optimized options based on device
+    const opts = {
+      strings: ["HAPPY NEW YEAR", "2026 ✨"],
+      charSize: 44,
+      charSpacing: 62,
+      lineHeight: 72,
+      gravity: 0.12,
+      upFlow: -0.06,
+      fireworkPrevPoints: performanceMode === 'low' ? 8 : 12,
+      fireworkBaseLineWidth: 6,
+      fireworkAddedLineWidth: 8,
+      fireworkSpawnTime: 140,
+      fireworkBaseReachTime: 36,
+      fireworkAddedReachTime: 40,
+      fireworkCircleBaseSize: 22,
+      fireworkCircleAddedSize: 14,
+      fireworkCircleBaseTime: 36,
+      fireworkCircleAddedTime: 26,
+      fireworkCircleFadeBaseTime: 12,
+      fireworkCircleFadeAddedTime: 8,
+      fireworkBaseShards: performanceMode === 'low' ? 5 : 7,
+      fireworkAddedShards: performanceMode === 'low' ? 6 : 8,
+      fireworkShardPrevPoints: performanceMode === 'low' ? 2 : 3,
+      fireworkShardBaseVel: 3.4,
+      fireworkShardAddedVel: 2.6,
+      fireworkShardBaseSize: 2,
+      fireworkShardAddedSize: 3,
+      letterContemplatingWaitTime: 260,
+      balloonSpawnTime: 18,
+      balloonBaseInflateTime: 12,
+      balloonAddedInflateTime: 18,
+      balloonBaseSize: 18,
+      balloonAddedSize: 24,
+      balloonBaseVel: 0.36,
+      balloonAddedVel: 0.5,
+      balloonBaseRadian: -(Math.PI / 2 - 0.4),
+      balloonAddedRadian: -0.9
+    };
+
+    let DPR = Math.max(window.devicePixelRatio || 1, 1);
+    // Cap DPR on mobile for performance
+    if (isMobile && DPR > 2) DPR = 2;
+    
+    let w = innerWidth, h = innerHeight, hw = w/2, hh = h/2;
+    let calc = { totalWidth: 0 };
+    const Tau = Math.PI * 2;
+    const letters = [];
+    let animationFrameId = null;
+    let lastTime = 0;
+    const targetFPS = performanceMode === 'low' ? 30 : 60;
+    const frameInterval = 1000 / targetFPS;
+    
+    // Star field for background
+    const stars = [];
+    const starCount = performanceMode === 'low' ? 30 : 50;
+    for (let i = 0; i < starCount; i++) {
+      stars.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        size: Math.random() * 1.5 + 0.5,
+        opacity: Math.random() * 0.5 + 0.3,
+        twinkleSpeed: Math.random() * 0.02 + 0.01,
+        twinklePhase: Math.random() * Math.PI * 2
+      });
+    }
+
+    // Audio context for sound effects
+    let audioContext = null;
+    let soundEnabled = true;
+    
+    // Initialize audio context (requires user interaction on some browsers)
+    function initAudio() {
+      try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {
+        console.warn('Web Audio API not supported');
+        soundEnabled = false;
+      }
+    }
+    
+    // Play firework explosion sound
+    function playExplosionSound() {
+      if (!soundEnabled || !audioContext) return;
+      
+      // Resume audio context if suspended (required by some browsers)
+      if (audioContext.state === 'suspended') {
+        audioContext.resume().catch(() => {});
+      }
+      
+      try {
+        const now = audioContext.currentTime;
+        const duration = 0.3;
+        
+        // Create a burst of noise for the explosion
+        const bufferSize = audioContext.sampleRate * duration;
+        const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+        const data = buffer.getChannelData(0);
+        
+        // Generate noise with envelope
+        for (let i = 0; i < bufferSize; i++) {
+          const t = i / bufferSize;
+          const envelope = Math.pow(1 - t, 2); // Exponential decay
+          data[i] = (Math.random() * 2 - 1) * envelope * 0.3;
+        }
+        
+        // Add a low-frequency boom
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        const filter = audioContext.createBiquadFilter();
+        
+        oscillator.type = 'sawtooth';
+        oscillator.frequency.setValueAtTime(80, now);
+        oscillator.frequency.exponentialRampToValueAtTime(40, now + duration);
+        
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(200, now);
+        filter.frequency.exponentialRampToValueAtTime(50, now + duration);
+        
+        gainNode.gain.setValueAtTime(0.15, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+        
+        oscillator.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.start(now);
+        oscillator.stop(now + duration);
+        
+        // Play the noise burst
+        const noiseSource = audioContext.createBufferSource();
+        const noiseGain = audioContext.createGain();
+        noiseSource.buffer = buffer;
+        noiseGain.gain.setValueAtTime(0.2, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+        
+        noiseSource.connect(noiseGain);
+        noiseGain.connect(audioContext.destination);
+        noiseSource.start(now);
+        noiseSource.stop(now + duration);
+        
+      } catch (e) {
+        // Silently fail if audio can't be played
+      }
+    }
+    
+    // Enable audio on first user interaction
+    let audioInitialized = false;
+    function enableAudio() {
+      if (!audioInitialized) {
+        initAudio();
+        audioInitialized = true;
+        // Remove listeners after first interaction
+        document.removeEventListener('click', enableAudio);
+        document.removeEventListener('touchstart', enableAudio);
+      }
+    }
+    document.addEventListener('click', enableAudio, { once: true });
+    document.addEventListener('touchstart', enableAudio, { once: true });
+
+    // Enhanced color palette with more vibrant colors
+    const colorPalette = [
+      { hue: 15, sat: 100 },   // Bright orange-red
+      { hue: 30, sat: 100 },   // Golden yellow
+      { hue: 45, sat: 100 },   // Yellow
+      { hue: 60, sat: 100 },   // Lime
+      { hue: 180, sat: 100 },  // Cyan
+      { hue: 240, sat: 100 },  // Blue
+      { hue: 280, sat: 100 },  // Magenta
+      { hue: 320, sat: 100 },  // Pink
+      { hue: 0, sat: 100 },    // Red
+    ];
+    
+    // Optimized hue calculation with caching and vibrant colors
+    const hueCache = new Map();
+    function hueForX(x) {
+      if (calc.totalWidth <= 0) return 30;
+      const cacheKey = Math.floor(x / 10);
+      if (hueCache.has(cacheKey)) return hueCache.get(cacheKey);
+      const t = (x + calc.totalWidth/2) / calc.totalWidth;
+      // Use vibrant color palette
+      const colorIndex = Math.floor(t * (colorPalette.length - 1));
+      const color1 = colorPalette[colorIndex];
+      const color2 = colorPalette[Math.min(colorIndex + 1, colorPalette.length - 1)];
+      const blend = (t * (colorPalette.length - 1)) % 1;
+      const hue = color1.hue + (color2.hue - color1.hue) * blend;
+      hueCache.set(cacheKey, hue);
+      return hue;
+    }
+
+    function setSize() {
+      DPR = Math.max(window.devicePixelRatio || 1, 1);
+      if (isMobile && DPR > 2) DPR = 2;
+      
+      const cssW = Math.max(1, innerWidth);
+      const cssH = Math.max(1, innerHeight);
+      canvas.style.width = cssW + 'px';
+      canvas.style.height = cssH + 'px';
+      canvas.width = Math.round(cssW * DPR);
+      canvas.height = Math.round(cssH * DPR);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(DPR, DPR);
+      w = cssW; h = cssH; hw = w/2; hh = h/2;
+      ctx.font = `${opts.charSize}px Verdana`;
+      calc.totalWidth = opts.charSpacing * Math.max(...opts.strings.map(s => s.length));
+      hueCache.clear();
+    }
+
+    function Letter(char, x, y) {
+      this.char = char;
+      this.x = x;
+      this.y = y;
+      this.dx = -ctx.measureText(char).width / 2;
+      this.dy = opts.charSize / 2;
+      this.fireworkDy = this.y - hh;
+      const hue = hueForX(x);
+      this.hue = hue;
+      const sat = 100; // Full saturation for vibrant colors
+      this.color = `hsl(${hue},${sat}%,60%)`;
+      this.lightColor = (light) => `hsl(${hue},${sat}%,${light}%)`;
+      this.alphaColor = (alp) => `hsla(${hue},${sat}%,60%,${alp})`;
+      this.lightAlpha = (light, alp) => `hsla(${hue},${sat}%,${light}%,${alp})`;
+      this.reset();
+    }
+
+    Letter.prototype.reset = function () {
+      this.phase = 'firework';
+      this.tick = 0;
+      this.spawned = false;
+      this.spawningTime = Math.floor(opts.fireworkSpawnTime * Math.random());
+      this.reachTime = Math.floor(opts.fireworkBaseReachTime + opts.fireworkAddedReachTime * Math.random());
+      this.lineWidth = opts.fireworkBaseLineWidth + opts.fireworkAddedLineWidth * Math.random();
+      this.prevPoints = [[0, hh, 0]];
+    };
+
+    Letter.prototype.step = function () {
+      if (this.phase === 'firework') {
+        if (!this.spawned) {
+          ++this.tick;
+          if (this.tick >= this.spawningTime) { this.tick = 0; this.spawned = true; }
+        } else {
+          ++this.tick;
+          const lp = this.tick / Math.max(1, this.reachTime);
+          const ap = Math.sin(lp * (Tau/4));
+          const x = lp * this.x;
+          const y = hh + ap * this.fireworkDy;
+          if (this.prevPoints.length > opts.fireworkPrevPoints) this.prevPoints.shift();
+          this.prevPoints.push([x, y, lp * this.lineWidth]);
+          
+          // Enhanced batch drawing with gradient trail
+          ctx.save();
+          const lwp = 1 / Math.max(1, this.prevPoints.length - 1);
+          for (let i = 1; i < this.prevPoints.length; ++i) {
+            const p = this.prevPoints[i], p2 = this.prevPoints[i-1];
+            const alpha = (i / this.prevPoints.length) * 0.95;
+            const brightness = 50 + (i / this.prevPoints.length) * 30;
+            ctx.strokeStyle = `hsla(${this.hue},100%,${brightness}%,${alpha})`;
+            ctx.lineWidth = p[2] * lwp * i * 1.2;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = `hsla(${this.hue},100%,60%,${alpha * 0.5})`;
+            ctx.beginPath();
+            ctx.moveTo(p[0], p[1]);
+            ctx.lineTo(p2[0], p2[1]);
+            ctx.stroke();
+          }
+          ctx.restore();
+          
+          if (this.tick >= this.reachTime) {
+            // Play explosion sound
+            playExplosionSound();
+            
+            this.phase = 'contemplate';
+            this.circleFinalSize = opts.fireworkCircleBaseSize + opts.fireworkCircleAddedSize * Math.random();
+            this.circleCompleteTime = Math.floor(opts.fireworkCircleBaseTime + opts.fireworkCircleAddedTime * Math.random());
+            this.circleCreating = true; this.circleFading = false;
+            this.circleFadeTime = Math.floor(opts.fireworkCircleFadeBaseTime + opts.fireworkCircleFadeAddedTime * Math.random());
+            this.tick = 0; this.tick2 = 0;
+            this.shards = [];
+            const shardCount = Math.max(5, Math.floor(opts.fireworkBaseShards + opts.fireworkAddedShards * Math.random()));
+            const angle = (Tau / shardCount);
+            let cos = Math.cos(angle), sin = Math.sin(angle);
+            let vx = 1, vy = 0;
+            for (let i = 0; i < shardCount; ++i) {
+              const vx1 = vx;
+              vx = vx * cos - vy * sin;
+              vy = vx1 * sin + vy * cos;
+              this.shards.push(new Shard(this.x, this.y, vx, vy, this.alphaColor(1)));
+            }
+          }
+        }
+      } else if (this.phase === 'contemplate') {
+        ++this.tick;
+        ctx.save();
+        
+        if (this.circleCreating) {
+          ++this.tick2;
+          const proportion = this.tick2 / Math.max(1, this.circleCompleteTime);
+          const armonic = -Math.cos(proportion * Math.PI)/2 + 0.5;
+          
+          // Enhanced explosion circle with gradient
+          const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, armonic * this.circleFinalSize);
+          gradient.addColorStop(0, this.lightAlpha(90, proportion * 0.9));
+          gradient.addColorStop(0.5, this.lightAlpha(70, proportion * 0.7));
+          gradient.addColorStop(1, this.lightAlpha(50, proportion * 0.3));
+          
+          ctx.beginPath();
+          ctx.fillStyle = gradient;
+          ctx.arc(this.x, this.y, armonic * this.circleFinalSize, 0, Tau);
+          ctx.fill();
+          
+          // Add outer glow
+          if (performanceMode === 'high') {
+            ctx.shadowBlur = armonic * this.circleFinalSize * 0.5;
+            ctx.shadowColor = `hsla(${this.hue},100%,70%,${proportion * 0.6})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, armonic * this.circleFinalSize, 0, Tau);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          }
+          
+          if (this.tick2 > this.circleCompleteTime) {
+            this.tick2 = 0; this.circleCreating = false; this.circleFading = true;
+          }
+        } else if (this.circleFading) {
+          // Enhanced shadow rendering with color-matched glow
+          if (performanceMode === 'high') {
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = `hsla(${this.hue},100%,70%,0.9)`;
+          }
+          ctx.fillStyle = this.lightColor(80);
+          ctx.fillText(this.char, this.x + this.dx, this.y + this.dy);
+          ++this.tick2;
+          const proportion = this.tick2 / Math.max(1, this.circleFadeTime);
+          const armonic = -Math.cos(proportion * Math.PI)/2 + 0.5;
+          
+          // Fading circle with gradient
+          const fadeGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.circleFinalSize);
+          fadeGradient.addColorStop(0, this.lightAlpha(100, 1 - armonic));
+          fadeGradient.addColorStop(1, this.lightAlpha(60, (1 - armonic) * 0.3));
+          
+          ctx.beginPath();
+          ctx.fillStyle = fadeGradient;
+          ctx.arc(this.x, this.y, this.circleFinalSize, 0, Tau);
+          ctx.fill();
+          if (this.tick2 >= this.circleFadeTime) this.circleFading = false;
+        } else {
+          // Enhanced text glow
+          if (performanceMode === 'high') {
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = `hsla(${this.hue},100%,65%,0.9)`;
+          }
+          ctx.fillStyle = this.lightColor(75);
+          ctx.fillText(this.char, this.x + this.dx, this.y + this.dy);
+        }
+        ctx.restore();
+        
+        // Update shards
+        for (let i = this.shards.length - 1; i >= 0; --i) {
+          this.shards[i].step();
+          if (!this.shards[i].alive) { 
+            this.shards.splice(i, 1); 
+          }
+        }
+        
+        if (this.tick > opts.letterContemplatingWaitTime) {
+          this.phase = 'balloon';
+          this.tick = 0; this.spawning = true;
+          this.spawnTime = Math.floor(opts.balloonSpawnTime * Math.random());
+          this.inflating = false;
+          this.inflateTime = Math.floor(opts.balloonBaseInflateTime + opts.balloonAddedInflateTime * Math.random());
+          this.size = Math.floor(opts.balloonBaseSize + opts.balloonAddedSize * Math.random());
+          const rad = opts.balloonBaseRadian + opts.balloonAddedRadian * Math.random();
+          const vel = opts.balloonBaseVel + opts.balloonAddedVel * Math.random();
+          this.vx = Math.cos(rad) * vel;
+          this.vy = Math.sin(rad) * vel;
+          this.cx = this.x; this.cy = this.y;
+        }
+      } else if (this.phase === 'balloon') {
+        ctx.save();
+        ctx.strokeStyle = this.lightColor(82);
+        ctx.lineWidth = 1.2;
+        
+        if (this.spawning) {
+          ++this.tick;
+          ctx.fillStyle = this.lightColor(72);
+          ctx.fillText(this.char, this.x + this.dx, this.y + this.dy);
+          if (this.tick >= this.spawnTime) { this.tick = 0; this.spawning = false; this.inflating = true; }
+        } else if (this.inflating) {
+          ++this.tick;
+          const proportion = this.tick / Math.max(1, this.inflateTime);
+          const x = (this.cx = this.x);
+          const y = (this.cy = this.y - this.size * proportion);
+          ctx.fillStyle = this.alphaColor(proportion * 0.9);
+          ctx.beginPath();
+          generateBalloonPath(ctx, x, y, this.size * proportion);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x, this.y);
+          ctx.stroke();
+          ctx.fillStyle = this.lightColor(70);
+          ctx.fillText(this.char, this.x + this.dx, this.y + this.dy);
+          if (this.tick >= this.inflateTime) { this.tick = 0; this.inflating = false; }
+        } else {
+          this.cx += this.vx;
+          this.cy += (this.vy += opts.upFlow);
+          
+          // Enhanced balloon with gradient and shine
+          const balloonGradient = ctx.createLinearGradient(
+            this.cx - this.size * 0.3, this.cy - this.size,
+            this.cx + this.size * 0.3, this.cy
+          );
+          balloonGradient.addColorStop(0, this.lightColor(70));
+          balloonGradient.addColorStop(0.3, this.color);
+          balloonGradient.addColorStop(0.7, this.color);
+          balloonGradient.addColorStop(1, this.lightColor(50));
+          
+          ctx.fillStyle = balloonGradient;
+          ctx.beginPath();
+          generateBalloonPath(ctx, this.cx, this.cy, this.size);
+          ctx.fill();
+          
+          // Add highlight/shine
+          if (performanceMode === 'high') {
+            const shineGradient = ctx.createRadialGradient(
+              this.cx - this.size * 0.2, this.cy - this.size * 0.6,
+              0,
+              this.cx - this.size * 0.2, this.cy - this.size * 0.6,
+              this.size * 0.4
+            );
+            shineGradient.addColorStop(0, 'rgba(255,255,255,0.4)');
+            shineGradient.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = shineGradient;
+            ctx.beginPath();
+            ctx.arc(this.cx - this.size * 0.2, this.cy - this.size * 0.6, this.size * 0.3, 0, Tau);
+            ctx.fill();
+          }
+          
+          ctx.beginPath();
+          ctx.moveTo(this.cx, this.cy);
+          ctx.lineTo(this.cx, this.cy + this.size);
+          ctx.stroke();
+          
+          if (performanceMode === 'high') {
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = `hsla(${this.hue},100%,60%,0.6)`;
+          }
+          ctx.fillStyle = this.lightColor(80);
+          ctx.fillText(this.char, this.cx + this.dx, this.cy + this.dy + this.size);
+          ctx.shadowBlur = 0;
+          
+          if (this.cy + this.size < -hh - 120 || this.cx < -hw - 120 || this.cx > hw + 120) this.phase = 'done';
+        }
+        ctx.restore();
+      }
+    };
+
+    function Shard(x, y, vx, vy, color) {
+      const vel = opts.fireworkShardBaseVel + opts.fireworkShardAddedVel * Math.random();
+      this.vx = vx * vel; this.vy = vy * vel;
+      this.x = x; this.y = y;
+      this.prevPoints = [[x,y]];
+      this.color = color;
+      this.alive = true;
+      this.size = opts.fireworkShardBaseSize + opts.fireworkShardAddedSize * Math.random();
+    }
+    
+    Shard.prototype.step = function () {
+      this.x += this.vx; this.y += this.vy += opts.gravity;
+      if (this.prevPoints.length > opts.fireworkShardPrevPoints) this.prevPoints.shift();
+      this.prevPoints.push([this.x, this.y]);
+      
+      // Enhanced batch drawing with glow
+      ctx.save();
+      const lwp = this.size / Math.max(1, this.prevPoints.length);
+      for (let k = 0; k < this.prevPoints.length - 1; ++k) {
+        const p = this.prevPoints[k], p2 = this.prevPoints[k+1];
+        const alpha = 1 - (k / this.prevPoints.length) * 0.3;
+        ctx.strokeStyle = this.color.replace('1)', `${alpha})`);
+        ctx.lineWidth = (k+1) * lwp * 0.8;
+        if (performanceMode === 'high' && k === this.prevPoints.length - 2) {
+          ctx.shadowBlur = 4;
+          ctx.shadowColor = this.color;
+        }
+        ctx.beginPath();
+        ctx.moveTo(p[0], p[1]);
+        ctx.lineTo(p2[0], p2[1]);
+        ctx.stroke();
+      }
+      ctx.restore();
+      
+      if (this.prevPoints[0][1] > hh + 60) this.alive = false;
+    };
+
+    function generateBalloonPath(ctx, x, y, size) {
+      ctx.moveTo(x, y);
+      ctx.bezierCurveTo(x - size/2, y - size/2, x - size/4, y - size, x, y - size);
+      ctx.bezierCurveTo(x + size/4, y - size, x + size/2, y - size/2, x, y);
+    }
+
+    function createLetters() {
+      letters.length = 0;
+      const rows = opts.strings.length;
+      const longest = Math.max(...opts.strings.map(s => s.length));
+      calc.totalWidth = opts.charSpacing * longest;
+      const blockHeight = opts.lineHeight * rows;
+      for (let i = 0; i < rows; ++i) {
+        const str = opts.strings[i];
+        const rowWidth = opts.charSpacing * str.length;
+        const xOffset = -rowWidth / 2 + opts.charSpacing / 2;
+        const y = i * opts.lineHeight + opts.lineHeight/2 - blockHeight/2;
+        for (let j = 0; j < str.length; ++j) {
+          letters.push(new Letter(str[j], xOffset + j * opts.charSpacing, y));
+        }
+      }
+    }
+
+    function animate(currentTime) {
+      animationFrameId = window.requestAnimationFrame(animate);
+      
+      // Frame rate limiting for mobile
+      if (performanceMode === 'low') {
+        const elapsed = currentTime - lastTime;
+        if (elapsed < frameInterval) return;
+        lastTime = currentTime - (elapsed % frameInterval);
+      }
+      
+      // Clear with optimized method
+      ctx.save();
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Enhanced multi-color gradient background
+      const time = (currentTime || 0) * 0.0005;
+      const g = ctx.createRadialGradient(hw, hh, 0, hw, hh, Math.max(w,h)*1.2);
+      const hue1 = (30 + Math.sin(time) * 10) % 360;
+      const hue2 = (60 + Math.cos(time) * 15) % 360;
+      g.addColorStop(0, `hsla(${hue1},80%,50%,0.12)`);
+      g.addColorStop(0.2, `hsla(${hue2},70%,45%,0.08)`);
+      g.addColorStop(0.4, 'rgba(255,180,80,0.05)');
+      g.addColorStop(0.6, 'rgba(255,150,50,0.03)');
+      g.addColorStop(1, 'rgba(0,0,0,0.8)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0,0,canvas.width / DPR, canvas.height / DPR);
+      
+      // Draw twinkling stars
+      if (performanceMode === 'high') {
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        for (let i = 0; i < stars.length; i++) {
+          const star = stars[i];
+          star.twinklePhase += star.twinkleSpeed;
+          const twinkle = (Math.sin(star.twinklePhase) + 1) / 2;
+          const opacity = star.opacity + twinkle * 0.4;
+          ctx.globalAlpha = opacity;
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.size, 0, Tau);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+      
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(hw, hh);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.font = `${opts.charSize}px Verdana`;
+
+      let allDone = true;
+      for (let i = 0; i < letters.length; ++i) {
+        letters[i].step();
+        if (letters[i].phase !== 'done') allDone = false;
+      }
+
+      ctx.restore();
+
+      if (allDone) {
+        setTimeout(() => { 
+          for (let L of letters) L.reset(); 
+        }, 400);
+      }
+    }
+
+    // Hide loading indicator
+    const loadingEl = document.querySelector('.loading');
+    if (loadingEl) {
+      setTimeout(() => {
+        loadingEl.style.opacity = '0';
+        setTimeout(() => loadingEl.remove(), 500);
+      }, 500);
+    }
+
+    setSize();
+    
+    // Update star positions on resize
+    function updateStars() {
+      for (let i = 0; i < stars.length; i++) {
+        stars[i].x = Math.random() * w;
+        stars[i].y = Math.random() * h;
+      }
+    }
+    
+    const resizeHandler = () => {
+      window.cancelAnimationFrame(animationFrameId);
+      window.requestAnimationFrame(() => { 
+        setSize(); 
+        updateStars();
+        createLetters(); 
+        animate(performance.now());
+      });
+    };
+    window.addEventListener('resize', resizeHandler, { passive: true });
+
+    createLetters();
+    animate(performance.now());
+  })();
+  </script>
+</body>
+</html>
